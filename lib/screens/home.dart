@@ -1,17 +1,16 @@
-import 'dart:ffi';
-
-import 'package:flutter/cupertino.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class Home extends StatefulWidget {
-  const Home({super.key});
+  const Home({Key? key}) : super(key: key);
 
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
+  final firebase = FirebaseFirestore.instance;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,19 +18,39 @@ class _HomeState extends State<Home> {
         title: Text('Flutter and Firebase'),
         backgroundColor: Colors.cyan,
         foregroundColor: Colors.red,
-
-
       ),
-      body: Container(),
-
+      body: StreamBuilder(
+        stream: firebase.collection('new').snapshots(),
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasData) {
+            return ListView.builder(
+              itemCount: snapshot.data!.docs.length,
+              itemBuilder: (context, index) {
+                return Card(
+                  child: Column(
+                    children: [
+                      Text(snapshot.data!.docs[index]['message']),
+                      Text(snapshot.data!.docs[index]['time'].toString()),
+                    ],
+                  ),
+                );
+              },
+            );
+          } else {
+            return Center(child: CircularProgressIndicator());
+          }
+        },
+      ),
       floatingActionButton: FloatingActionButton(
-        onPressed: (){
-
+        onPressed: () {
+          firebase.collection('new').add({
+            'message': 'hello1',
+            'time': Timestamp.now(),
+          });
         },
         backgroundColor: Colors.cyan,
-        child: Icon(Icons.add , color: Colors.white)
+        child: Icon(Icons.add, color: Colors.white),
       ),
-
     );
   }
 }
