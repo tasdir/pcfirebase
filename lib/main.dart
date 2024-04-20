@@ -40,27 +40,56 @@ class TaskListScreen extends StatelessWidget {
               child: Text('No Tasks'),
             );
           } else {
-            return ListView(
-              children: snapshot.data!.docs.map((doc) {
-                return ListTile(
-                  title: Text(doc['name']),
-                  leading: Checkbox(
-                    value: doc['status'] == 'done',
-                    onChanged: (value) async {
-                      if (value != null) {
-                        await FirebaseFirestore.instance.collection('tasks').doc(doc.id).update({
-                          'status': value ? 'done' : 'to-do',
-                        });
-                      }
-                    },
+            List<Widget> ongoingTasks = [];
+            List<Widget> completedTasks = [];
 
-                  ),
-                  onLongPress: () async {
-                    await FirebaseFirestore.instance.collection('tasks').doc(doc.id).delete();
+            snapshot.data!.docs.forEach((doc) {
+              Timestamp createdAtTimestamp = doc['created_at'] ?? Timestamp.now();
+              DateTime createdAt = createdAtTimestamp.toDate();
+              String formattedDate = '${createdAt.day}/${createdAt.month}/${createdAt.year} ${createdAt.hour}:${createdAt.minute}';
+
+              ListTile taskTile = ListTile(
+                title: Text(doc['name']),
+                subtitle: Text('Created at: $formattedDate'),
+                leading: Checkbox(
+                  value: doc['status'] == 'done',
+                  onChanged: (value) async {
+                    if (value != null) {
+                      await FirebaseFirestore.instance.collection('tasks').doc(doc.id).update({
+                        'status': value ? 'done' : 'to-do',
+                      });
+                    }
                   },
+                ),
+                onLongPress: () async {
+                  await FirebaseFirestore.instance.collection('tasks').doc(doc.id).delete();
+                },
+              );
 
-                );
-              }).toList(),
+              if (doc['status'] == 'done') {
+                completedTasks.add(taskTile);
+              } else {
+                ongoingTasks.add(taskTile);
+              }
+            });
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Ongoing Tasks:', style: TextStyle(fontWeight: FontWeight.bold)),
+                Expanded(
+                  child: ListView(
+                    children: ongoingTasks,
+                  ),
+                ),
+                SizedBox(height: 16),
+                Text('Completed Tasks:', style: TextStyle(fontWeight: FontWeight.bold)),
+                Expanded(
+                  child: ListView(
+                    children: completedTasks,
+                  ),
+                ),
+              ],
             );
           }
         },
@@ -92,6 +121,7 @@ class TaskListScreen extends StatelessWidget {
                         await FirebaseFirestore.instance.collection('tasks').add({
                           'name': taskName,
                           'status': 'to-do', // default status
+                          'created_at': FieldValue.serverTimestamp(), // add server timestamp
                         });
                         Navigator.pop(context);
                       }
