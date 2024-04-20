@@ -19,31 +19,67 @@ class _HomeState extends State<Home> {
         backgroundColor: Colors.cyan,
         foregroundColor: Colors.red,
       ),
-      body: StreamBuilder(
-        stream: firebase.collection('new').snapshots(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (snapshot.hasData) {
-            return ListView.builder(
-              itemCount: snapshot.data!.docs.length,
-              itemBuilder: (context, index) {
-                return Card(
-                  child: Column(
-                    children: [
-                      Text(snapshot.data!.docs[index]['message']),
-                      Text(snapshot.data!.docs[index]['time'].toString()),
-                    ],
-                  ),
-                );
-              },
-            );
-          } else {
-            return Center(child: CircularProgressIndicator());
-          }
-        },
-      ),
+
+         body: StreamBuilder(
+           stream : firebase.collection('newdata').snapshots() ,
+           builder: (context,AsyncSnapshot snapshot){
+             print(snapshot.data!.docs[0]['time']);
+
+             return ListView.builder(
+               itemCount: snapshot.data!.docs.length,
+               itemBuilder: (context, index){
+                 return Card(
+                   color: Colors.cyan,
+
+                   child: Column (
+                     crossAxisAlignment: CrossAxisAlignment.start,
+                     children: [
+                       Text(snapshot.data!.docs[0]['message'])
+                     ],
+                   ),
+                 );
+               },
+             );
+           },
+
+         ),
+
+
+
+      // body: StreamBuilder(
+      //   stream: firebase.collection('new').snapshots(),
+      //   builder: ,
+      // ),
+
+
+      // body: StreamBuilder(
+      //   stream: firebase.collection('new').snapshots(),
+      //   builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+      //     if (snapshot.hasData) {
+      //       return ListView.builder(
+      //         itemCount: snapshot.data!.docs.length,
+      //         itemBuilder: (context, index) {
+      //           return Card(
+      //             child: Column(
+      //               children: [
+      //                 Text(snapshot.data!.docs[index]['message']),
+      //                 Text(snapshot.data!.docs[index]['time'].toString()),
+      //               ],
+      //             ),
+      //           );
+      //         },
+      //       );
+      //     } else {
+      //       return Center(child: CircularProgressIndicator());
+      //     }
+      //   },
+      // ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          firebase.collection('new').add({
+          firebase.collection('newdata').doc(Timestamp.now().toString()).set({
+
+
+            // firebase.collection('new').add({
             'message': 'hello1',
             'time': Timestamp.now(),
           });
