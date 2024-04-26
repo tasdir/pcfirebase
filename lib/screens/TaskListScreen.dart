@@ -52,33 +52,80 @@ class TaskListScreen extends StatelessWidget {
                   },
                 ),
                 onLongPress: () async {
-                  bool confirmDelete = await showDialog(
+                  showModalBottomSheet(
                     context: context,
                     builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: Text('Confirm Delete'),
-                        content: Text('Are you sure you want to delete this task?'),
-                        actions: <Widget>[
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(false);
-                            },
-                            child: Text('Cancel'),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(true);
-                            },
-                            child: Text('Delete'),
-                          ),
-                        ],
+                      return Container(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            ListTile(
+                              leading: Icon(Icons.edit),
+                              title: Text('Update Task'),
+// Inside your ListTile's onTap method
+                              onTap: () async {
+                                TextEditingController _controller = TextEditingController(text: doc['name']);
+                                String updatedTaskName = await showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: Text('Update Task'),
+                                      content: TextField(
+                                        controller: _controller,
+                                        autofocus: true,
+                                        decoration: InputDecoration(labelText: 'New Task Name'),
+                                      ),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context, null);
+                                          },
+                                          child: Text('Cancel', style: TextStyle(color: Colors.red)),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            String updatedName = _controller.text;
+                                            Navigator.pop(context, updatedName);
+                                          },
+                                          child: Text('Update', style: TextStyle(color: Colors.green)),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+
+                                if (updatedTaskName != null) {
+                                  await FirebaseFirestore.instance.collection('tasks').doc(doc.id).update({
+                                    'name': updatedTaskName,
+                                  });
+                                }
+                              },
+
+                            ),
+                            ListTile(
+                              leading: Icon(Icons.notifications),
+                              title: Text('Set Notification'),
+                              onTap: () {
+                                // Implement set notification functionality here
+
+
+
+                                Navigator.pop(context); // Close the bottom sheet after selection
+                              },
+                            ),
+                            ListTile(
+                              leading: Icon(Icons.delete),
+                              title: Text('Delete Task'),
+                              onTap: () {
+                                // Implement delete task functionality here
+                                Navigator.pop(context); // Close the bottom sheet after selection
+                              },
+                            ),
+                          ],
+                        ),
                       );
                     },
                   );
-
-                  if (confirmDelete == true) {
-                    await FirebaseFirestore.instance.collection('tasks').doc(doc.id).delete();
-                  }
                 },
               );
 
