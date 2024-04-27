@@ -2,12 +2,29 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'UserProfilePage.dart';
+
 class TaskListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Task List'),
+        actions: <Widget>[
+          IconButton(
+            icon: CircleAvatar(
+              backgroundImage: NetworkImage('https://example.com/user_profile_pic.jpg'), // Placeholder for user profile picture
+              backgroundColor: Colors.red,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => UserProfilePage()),
+              );
+            },
+          ),
+        ],
+
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('tasks').snapshots(),
@@ -113,14 +130,16 @@ class TaskListScreen extends StatelessWidget {
                                 Navigator.pop(context); // Close the bottom sheet after selection
                               },
                             ),
-                            ListTile(
-                              leading: Icon(Icons.delete),
-                              title: Text('Delete Task'),
-                              onTap: () {
-                                // Implement delete task functionality here
-                                Navigator.pop(context); // Close the bottom sheet after selection
-                              },
-                            ),
+                                  ListTile(
+                                  leading: Icon(Icons.delete),
+                                  title: Text('Delete Task'),
+                                  onTap: () async {
+                                  // Delete the task from Firestore
+                                  await FirebaseFirestore.instance.collection('tasks').doc(doc.id).delete();
+                                  Navigator.pop(context); // Close the bottom sheet after selection
+                                  },
+                                  ),
+
                           ],
                         ),
                       );

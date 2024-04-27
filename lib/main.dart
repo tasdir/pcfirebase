@@ -13,6 +13,7 @@ class TaskManagementApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Task Management App',
       theme: ThemeData(
         primarySwatch: Colors.lightBlue,
