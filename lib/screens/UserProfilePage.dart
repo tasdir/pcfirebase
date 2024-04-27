@@ -9,7 +9,7 @@ class UserProfilePage extends StatelessWidget {
         title: Text('User Profile'),
       ),
       body: Center(
-        child: Text('This is the user profile page.'),
+        child: Text('This is the user profile page.Changed it'),
       ),
     );
   }
