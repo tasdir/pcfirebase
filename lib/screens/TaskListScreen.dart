@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:pcfirebase/screens/statics.dart';
 
 import 'UserProfilePage.dart';
 
@@ -11,16 +12,43 @@ class TaskListScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Task List'),
         actions: <Widget>[
-          IconButton(
-            icon: CircleAvatar(
-              backgroundImage: NetworkImage('https://example.com/user_profile_pic.jpg'), // Placeholder for user profile picture
-              backgroundColor: Colors.red,
+          Padding(
+            padding: EdgeInsets.only(right: 16.0),
+            child: GestureDetector(
+              onTap: () {
+                // Navigate to UserProfilePage
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => UserProfilePage()),
+                );
+              },
+              child: CircleAvatar(
+                radius: 20,
+                backgroundColor: Colors.grey[300],
+                backgroundImage: NetworkImage('https://example.com/user_profile_pic.jpg'), // Placeholder for user profile picture
+              ),
             ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => UserProfilePage()),
-              );
+          ),
+          PopupMenuButton(
+            itemBuilder: (BuildContext context) => [
+              PopupMenuItem(
+                child: Text("Statics"),
+                value: "statics",
+              ),
+              PopupMenuItem(
+                child: Text("Help"),
+                value: "help",
+              ),
+            ],
+            onSelected: (String value) {
+              if (value == "statics") {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Statics()),
+                );
+              } else if (value == "help") {
+                // Handle Help menu item tap
+              }
             },
           ),
         ],
@@ -41,10 +69,16 @@ class TaskListScreen extends StatelessWidget {
             List<Widget> ongoingTasks = [];
             List<Widget> completedTasks = [];
 
+
+
             snapshot.data!.docs.forEach((doc) {
               Timestamp createdAtTimestamp = doc['created_at'] ?? Timestamp.now();
               DateTime createdAt = createdAtTimestamp.toDate();
               String formattedDate = '${createdAt.day}/${createdAt.month}/${createdAt.year} ${createdAt.hour}:${createdAt.minute}';
+              print("Ongoinggg" +  ongoingTasks.length.toString());
+              print("Completetaskkk" + completedTasks.length.toString());
+
+
 
               ListTile taskTile = ListTile(
                 title: Text(
@@ -157,7 +191,60 @@ class TaskListScreen extends StatelessWidget {
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+
               children: [
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.all(1),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.transparent,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Completed Tasks',
+                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.red),
+                            ),
+                            SizedBox(height: 8), // Add some spacing between the title and the tasks
+                            Text(
+                              '${completedTasks.length}',
+                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 20), // Add spacing between the boxes
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.all(1),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.transparent,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Ongoing Tasks',
+                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.blue ),
+                            ),
+                            SizedBox(height: 8), // Add some spacing between the title and the tasks
+                            Text(
+                              '${ongoingTasks.length}',
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Text(
